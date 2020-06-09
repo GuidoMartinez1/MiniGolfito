@@ -1,6 +1,8 @@
 module Lib where
 import Text.Show.Functions
 
+laVerdad = True
+
 data Jugador = UnJugador {
 nombre :: String,
 padre :: String,
