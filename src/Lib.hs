@@ -80,5 +80,71 @@ golpe persona palo = (palo.habilidad) persona
 {-golpe bart putter
 Tiro {velocidad = 10, precision = 120, altura = 0}-}
 
+--PUNTO 3
+{-Lo que nos interesa de los distintos obstáculos es si un tiro puede superarlo, y en el caso de poder
+superarlo, cómo se ve afectado dicho tiro por el obstáculo. En principio necesitamos representar los
+siguientes obstáculos:
+    a. Un túnel con rampita sólo es superado si la precisión es mayor a 90 yendo al ras del suelo,
+        independientemente de la velocidad del tiro. Al salir del túnel la velocidad del tiro se duplica, la precision
+        pasa a ser 100 y la altura 0.
+    b. Una laguna es superada si la velocidad del tiro es mayor a 80 y tiene una altura de entre 1 y 5
+        metros. Luego de superar una laguna el tiro llega con la misma velocidad y precisión, pero una
+        altura equivalente a la altura original dividida por el largo de la laguna .
+    c. Un hoyo se supera si la velocidad del tiro está entre 5 y 20 m/s yendo al ras del suelo con una
+        precisión mayor a 95. Al superar el hoyo, el tiro se detiene, quedando con todos sus componentes en 0.
 
+Se desea saber cómo queda un tiro luego de intentar superar un obstáculo, teniendo en cuenta que en
+caso de no superarlo, se detiene, quedando con todos sus componentes en 0. -}
+
+
+
+--LOGICA GENERALIZADA
+superaObstaculo :: (Tiro -> Bool) -> (Tiro -> Tiro) -> Tiro -> Tiro
+superaObstaculo condicion efecto tiro 
+    | condicion tiro = efecto tiro
+    | otherwise = tiroNoSuperado
+
+tiroNoSuperado :: Tiro
+tiroNoSuperado = Tiro 0 0 0
+
+--REPRESENTAR OBSTACULOS
+type LargoDeLaguna = Int
+type Obstaculo = Tiro -> Tiro
+
+tunerConRampita :: Obstaculo
+tunerConRampita  = superaObstaculo superaTunel aplicarEfectoTunelConRampita
+
+laguna :: LargoDeLaguna -> Obstaculo
+laguna largo = superaObstaculo superaLaguna (aplicarEfectoLaguna largo)
+
+hoyo :: Obstaculo
+hoyo = superaObstaculo superaHoyo aplicarEfectoHoyo
+
+--CONDICIONALES
+
+superaLaguna :: Tiro -> Bool
+superaLaguna tiro = velocidad tiro > 80 && (between 1 5.altura) tiro
+
+superaTunel :: Tiro -> Bool
+superaTunel tiro = precisionDelTiroEsMayor (precision tiro) 90 && vaAlRas tiro
+
+superaHoyo :: Tiro -> Bool
+superaHoyo tiro = (between 5 20.velocidad) tiro && vaAlRas tiro && precisionDelTiroEsMayor (precision tiro ) 95
+
+precisionDelTiroEsMayor :: Int -> Int -> Bool
+precisionDelTiroEsMayor numero cond = numero > cond
+
+vaAlRas :: Tiro -> Bool
+vaAlRas = (==0).altura
+
+-- EFECTOS
+
+aplicarEfectoTunelConRampita :: Tiro -> Tiro
+aplicarEfectoTunelConRampita tiro = tiro {velocidad = velocidad tiro * 2 , precision = 100, altura = 0 }
+
+aplicarEfectoLaguna :: LargoDeLaguna -> Tiro -> Tiro
+aplicarEfectoLaguna largo tiro = tiro {altura = altura tiro `div` largo}
+
+aplicarEfectoHoyo :: Tiro -> Tiro
+aplicarEfectoHoyo  _ = tiroNoSuperado
 
