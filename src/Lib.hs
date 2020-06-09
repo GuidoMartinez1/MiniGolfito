@@ -101,26 +101,30 @@ caso de no superarlo, se detiene, quedando con todos sus componentes en 0. -}
 
 
 --LOGICA GENERALIZADA
-superaObstaculo :: (Tiro -> Bool) -> (Tiro -> Tiro) -> Tiro -> Tiro
-superaObstaculo condicion efecto tiro 
-    | condicion tiro = efecto tiro
-    | otherwise = tiroNoSuperado
+data Obstaculo = Obstaculo {
+    puedeSuperar :: Tiro -> Bool,
+    efectoSiSupera :: Tiro -> Tiro
+}
+
+superaObstaculo :: Obstaculo -> Tiro -> Tiro
+superaObstaculo obstaculo tiro 
+    | puedeSuperar obstaculo tiro = efectoSiSupera obstaculo tiro
+    | otherwise = tiroNoSuperado 
 
 tiroNoSuperado :: Tiro
 tiroNoSuperado = Tiro 0 0 0
 
 --REPRESENTAR OBSTACULOS
-type LargoDeLaguna = Int
-type Obstaculo = Tiro -> Tiro
 
 tunerConRampita :: Obstaculo
-tunerConRampita  = superaObstaculo superaTunel aplicarEfectoTunelConRampita
+tunerConRampita  = Obstaculo superaTunel aplicarEfectoTunelConRampita
 
+type LargoDeLaguna = Int
 laguna :: LargoDeLaguna -> Obstaculo
-laguna largo = superaObstaculo superaLaguna (aplicarEfectoLaguna largo)
+laguna largo = Obstaculo superaLaguna (aplicarEfectoLaguna largo)
 
 hoyo :: Obstaculo
-hoyo = superaObstaculo superaHoyo aplicarEfectoHoyo
+hoyo = Obstaculo superaHoyo aplicarEfectoHoyo
 
 --CONDICIONALES
 
@@ -149,4 +153,29 @@ aplicarEfectoLaguna largo tiro = tiro {altura = altura tiro `div` largo}
 
 aplicarEfectoHoyo :: Tiro -> Tiro
 aplicarEfectoHoyo  _ = tiroNoSuperado
+
+--PUNTO 4
+{-  a. Definir palosUtiles que dada una persona y un obstáculo, permita determinar qué palos le sirven
+        para superarlo.
+-}
+
+palosUtiles :: Jugador -> Obstaculo -> [Palo]
+palosUtiles jugador obstaculo = filter (sirvePalo jugador obstaculo) palos
+
+sirvePalo :: Jugador -> Obstaculo -> Palo -> Bool
+sirvePalo jugador obstaculo palo = puedeSuperar obstaculo  (golpe jugador palo)
+
+{-
+    b. Saber, a partir de un conjunto de obstáculos y un tiro, cuántos obstáculos consecutivos se pueden
+        superar.
+Por ejemplo, para un tiro de velocidad = 10, precisión = 95 y altura = 0, y una lista con dos túneles
+con rampita seguidos de un hoyo, el resultado sería 2 ya que la velocidad al salir del segundo
+túnel es de 40, por ende no supera el hoyo.
+BONUS: resolver este problema sin recursividad, teniendo en cuenta que existe una función
+takeWhile :: (a -> Bool) -> [a] -> [a] que podría ser de utilidad.
+    c. Definir paloMasUtil que recibe una persona y una lista de obstáculos y determina cuál es el palo
+        que le permite superar más obstáculos con un solo tiro.
+-}
+
+
 
