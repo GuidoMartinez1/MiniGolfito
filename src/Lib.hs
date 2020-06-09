@@ -67,3 +67,18 @@ hierro n habilidad = Tiro {velocidad = fuerzaJugador habilidad * n , precision =
 --b
 palos :: [Palo]
 palos = [putter, madera] ++ map hierro [1 .. 10]
+
+--PUNTO 2
+{-Definir la función golpe que dados una persona y un palo, obtiene el tiro resultante de usar ese palo con
+las habilidades de la persona.
+Por ejemplo si Bart usa un putter, se genera un tiro de velocidad = 10, precisión = 120 y altura = 0. -}
+
+
+golpe :: Jugador -> Palo -> Tiro
+golpe persona palo = (palo.habilidad) persona
+
+{-golpe bart putter
+Tiro {velocidad = 10, precision = 120, altura = 0}-}
+
+
+
