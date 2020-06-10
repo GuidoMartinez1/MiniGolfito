@@ -116,8 +116,8 @@ tiroNoSuperado = Tiro 0 0 0
 
 --REPRESENTAR OBSTACULOS
 
-tunerConRampita :: Obstaculo
-tunerConRampita  = Obstaculo superaTunel aplicarEfectoTunelConRampita
+tunelConRampita :: Obstaculo
+tunelConRampita  = Obstaculo superaTunel aplicarEfectoTunelConRampita
 
 type LargoDeLaguna = Int
 laguna :: LargoDeLaguna -> Obstaculo
@@ -173,9 +173,32 @@ con rampita seguidos de un hoyo, el resultado sería 2 ya que la velocidad al sa
 túnel es de 40, por ende no supera el hoyo.
 BONUS: resolver este problema sin recursividad, teniendo en cuenta que existe una función
 takeWhile :: (a -> Bool) -> [a] -> [a] que podría ser de utilidad.
+-}
+
+obstaculosQuePuedenSuperar :: Tiro -> [Obstaculo] -> Int
+obstaculosQuePuedenSuperar tiro [] = 0
+obstaculosQuePuedenSuperar tiro (obstaculo:obstaculos) 
+    | puedeSuperar obstaculo tiro = 1 + obstaculosQuePuedenSuperar (efectoSiSupera obstaculo tiro) obstaculos
+    | otherwise = 0
+
+--ESTA MAL PERO PAJA HACER LA OTRA SOLUCION
+obstaculosQuePuedenSuperar' :: Tiro -> [Obstaculo] -> Int
+obstaculosQuePuedenSuperar' tiro = length. takeWhile (flip puedeSuperar tiro)
+
+{-
     c. Definir paloMasUtil que recibe una persona y una lista de obstáculos y determina cuál es el palo
         que le permite superar más obstáculos con un solo tiro.
 -}
+{-maximoSegun f = foldl1 (mayorSegun f)
+
+mayorSegun f a b
+    | f a > f b = a
+    | otherwise = b-}
+
+
+paloMasUtil :: Jugador -> [Obstaculo] -> Palo
+paloMasUtil persona obstaculos = maximoSegun (flip obstaculosQuePuedenSuperar obstaculos. golpe persona) palos
+
 
 
 
