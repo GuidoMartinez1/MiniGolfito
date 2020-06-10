@@ -199,6 +199,18 @@ mayorSegun f a b
 paloMasUtil :: Jugador -> [Obstaculo] -> Palo
 paloMasUtil persona obstaculos = maximoSegun (flip obstaculosQuePuedenSuperar obstaculos. golpe persona) palos
 
+--PUNTO 5
+{-Dada una lista de tipo [(Jugador, Puntos)] que tiene la información de cuántos puntos ganó cada
+niño al finalizar el torneo, se pide retornar la lista de padres que pierden la apuesta por ser el “padre del
+niño que no ganó”. Se dice que un niño ganó el torneo si tiene más puntos que los otros niños.-}
 
+jugadorDeTorneo = fst
+puntosGanados = snd
+
+padresQuePierdenLaApuesta :: [(Jugador, Puntos)] -> [String]
+padresQuePierdenLaApuesta puntosDeTorneo = map (padre.jugadorDeTorneo) . filter (not. gano puntosDeTorneo) $ puntosDeTorneo
+
+gano :: [(Jugador, Puntos)] -> (Jugador, Puntos) -> Bool
+gano puntosDeTorneo puntosDeUnJugador =all ((< puntosGanados puntosDeUnJugador).puntosGanados) .filter (/= puntosDeUnJugador) $ puntosDeTorneo    
 
 
